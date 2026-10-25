@@ -3,9 +3,7 @@ name: Build Sandi Launcher APK
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
-      - master
+    branches: [main, master]
 
 permissions:
   contents: read
@@ -29,19 +27,16 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Extract project ZIP
-        run: |
-          unzip -o SandiUniversalLauncher-Project.zip
+      - name: Extract project
+        run: unzip -o SandiUniversalLauncher-Project.zip
 
-      - name: Install Android SDK packages
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-      - name: Build Android APK
+      - name: Build APK
         working-directory: SandiUniversalLauncher
         run: |
+          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
           gradle --no-daemon assembleDebug
 
       - name: Upload APK
